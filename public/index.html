@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>GPS Data Viewer</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A website to store and download GPX files">
+  <meta name="keywords" content="I don't know what this changes">
+  <meta name="author" content="Jacob Wadsworth">
+  <!-- Load jquery, bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" type="text/css" href="/style.css">
+  <!-- Custom CSS End -->
+  <style>
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    td,
+    th {
+      border: 1px solid #666666;
+      text-align: left;
+      padding: 8px;
+    }
+
+    thead {
+      border: 2px solid #666666;
+      text-align: center;
+      padding: 8px;
+      background-color: #dddddd;
+    }
+
+    tr:nth-child(odd) {
+      background-color: #dddddd;
+    }
+
+    .formContainer {
+      width: 500px;
+      clear: both;
+    }
+
+    .formContainer input {
+      width: 100%;
+      clear: both;
+    }
+  </style>
+</head>
+
+<body>
+  <h3 style="text-align:center;">GPS Data Viewer</h3>
+  Welocme to my GPS Data Viewer.<br>
+
+  <h2>File Log</h2>
+  <div style="height:300px;overflow:auto;">
+    <table id="fileTable" style="width:100%">
+      <thead>
+        <tr>
+          <th>File name (click to download)</th>
+          <th>Version</th>
+          <th>Creator</th>
+          <th>Number of waypoints</th>
+          <th>Number of routes</th>
+          <th>Number of tracks</th>
+        </tr>
+      </thead>
+
+    </table>
+  </div>
+
+  <form ref='uploadForm' id='uploadForm' action='/upload' method='post' encType="multipart/form-data">
+    <div class="form-group">
+      <input type="file" name="uploadFile" class="btn btn-secondary">
+      <input type='submit' value='Upload' class="btn btn-secondary">
+    </div>
+  </form>
+  <div class='formContainer'>
+    <form ref='createForm' id='createForm'>
+      <h2>Create a new GPX file</h2>
+      <label for="filename">Name of file:</label>
+      <input id="filename"><br>
+      <label for="creator">Creator name:</label>
+      <input id="creator"><br>
+      <label for="version">Version:</label>
+      <input id="version"><br><br>
+      <button type="button" id="createGPXButton">Create GPX</button>
+    </form>
+  </div>
+
+  <br>
+  <h2>GPX View</h2>
+
+  <label for="gpxFiles">Choose a file:</label>
+  <select name="gpxFiles" id="gpxFiles">
+  </select>
+  <button type="button" id="LoadButton">Load File</button>
+
+  <div style="height:300px;overflow:auto;">
+    <table id="compTable" style="width:100%">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Name</th>
+          <th>Number of points</th>
+          <th>Length</th>
+          <th>Loop</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+
+  <label for="compList">Choose a component:</label>
+  <select name="compList" id="compList">
+  </select>
+  <button type="button" id="showDataButton">Show other data</button>
+  <button type="button" id="renameButton">Rename</button>
+
+
+  <div class='addRouteContainer'>
+    <form ref='addRouteForm' id='addRouteForm'>
+      <br>
+      <h2>Add Route</h2>
+      <label for="lat">Latitude:</label>
+      <input id="lat"><br>
+      <label for="lon">Longitude:</label>
+      <input id="lon"><br>
+      <button type="button" id="addWaypointButton">Add Waypoint</button>
+      <label for="addWaypointButton" id="waypointCount">Current Waypoint Count: 0</label>
+      <br>
+      <label for="gpxFiles2">Choose a file:</label>
+      <select name="gpxFiles2" id="gpxFiles2">
+      </select><br>
+      <label for="routeName">New Route Name:</label>
+      <input id="routeName"><br>
+      <button type="button" id="addRouteButton">Add Route</button>
+    </form>
+  </div>
+
+  <br>
+  <h2>Find Path Between</h2>
+
+  <label for="slat">Start Latitude:</label>
+      <input id="slat"><br>
+      <label for="slon">Start Longitude:</label>
+      <input id="slon"><br>
+      <label for="elat">End Latitude:</label>
+      <input id="elat"><br>
+      <label for="elon">End Longitude:</label>
+      <input id="elon"><br>
+      <label for="delta">Delta:</label>
+      <input id="delta"><br>
+      <button type="button" id="findPathButton">Search</button>
+
+  <div style="height:300px;overflow:auto;">
+    <table id="compTable" style="width:100%">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Name</th>
+          <th>Number of points</th>
+          <th>Length</th>
+          <th>Loop</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+
+  <h2 style="text-align:center;">Assignment 4</h2>
+
+  <div class='formContainer'>
+    <form ref='databaseForm' id='databaseForm'>
+      <h3>Connect to SOCS Database</h3>
+      <label for="username">Username:</label>
+      <input id="username"><br>
+      <label for="password">Password:</label>
+      <input id="password" type="password"><br>
+      <label for="Database">Database:</label>
+      <input id="database"><br><br>
+      <button type="button" id="connectDatabaseButton">Login</button>
+      <button type="button" id="storeFilesButton">Store All Files</button>
+      <button type="button" id="clearDataButton">Clear All Data</button>
+      <button type="button" id="displayDBButton">Display DB Status</button>
+      <button type="button" id="displayAllRoutesButton">Display All Routes by Name</button>
+      <button type="button" id="displayAllRoutesButton2">Display All Routes by Length</button>
+    </form>
+  </div>
+
+  <div style="height:300px;overflow:auto;">
+    <table id="routesTable" style="width:100%">
+      <thead>
+        <tr>
+          <th>Route ID</th>
+          <th>Name</th>
+          <th>Length</th>
+          <th>GPX ID</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+
+
+  <!-- Leave me at the bottom of body -->
+  <script src="/index.js"></script>
+</body>
+
+</html>
